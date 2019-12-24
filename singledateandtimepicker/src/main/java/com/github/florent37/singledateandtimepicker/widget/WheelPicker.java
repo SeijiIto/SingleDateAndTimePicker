@@ -184,6 +184,52 @@ public abstract class WheelPicker<V> extends View {
         selectedItemPosition = currentItemPosition;
     }
 
+    public WheelPicker(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.WheelPicker);
+
+        mItemTextSize = a.getDimensionPixelSize(R.styleable.WheelPicker_wheel_item_text_size, getResources().getDimensionPixelSize(R.dimen.WheelItemTextSize));
+        mVisibleItemCount = a.getInt(R.styleable.WheelPicker_wheel_visible_item_count, 7);
+        selectedItemPosition = a.getInt(R.styleable.WheelPicker_wheel_selected_item_position, 0);
+        hasSameWidth = a.getBoolean(R.styleable.WheelPicker_wheel_same_width, false);
+        textMaxWidthPosition = a.getInt(R.styleable.WheelPicker_wheel_maximum_width_text_position, -1);
+        maxWidthText = a.getString(R.styleable.WheelPicker_wheel_maximum_width_text);
+        mSelectedItemTextColor = a.getColor(R.styleable.WheelPicker_wheel_selected_item_text_color, -1);
+        mItemTextColor = a.getColor(R.styleable.WheelPicker_wheel_item_text_color, 0xFF888888);
+        mItemSpace = a.getDimensionPixelSize(R.styleable.WheelPicker_wheel_item_space, getResources().getDimensionPixelSize(R.dimen.WheelItemSpace));
+        isCyclic = a.getBoolean(R.styleable.WheelPicker_wheel_cyclic, false);
+        hasIndicator = a.getBoolean(R.styleable.WheelPicker_wheel_indicator, false);
+        mIndicatorColor = a.getColor(R.styleable.WheelPicker_wheel_indicator_color, 0xFFEE3333);
+        mIndicatorSize = a.getDimensionPixelSize(R.styleable.WheelPicker_wheel_indicator_size, getResources().getDimensionPixelSize(R.dimen.WheelIndicatorSize));
+        hasCurtain = a.getBoolean(R.styleable.WheelPicker_wheel_curtain, false);
+        mCurtainColor = a.getColor(R.styleable.WheelPicker_wheel_curtain_color, 0x88FFFFFF);
+        hasAtmospheric = a.getBoolean(R.styleable.WheelPicker_wheel_atmospheric, false);
+        isCurved = a.getBoolean(R.styleable.WheelPicker_wheel_curved, false);
+        mItemAlign = a.getInt(R.styleable.WheelPicker_wheel_item_align, ALIGN_CENTER);
+        a.recycle();
+
+        updateVisibleItemCount();
+
+        paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG | Paint.LINEAR_TEXT_FLAG);
+        paint.setTextSize(mItemTextSize);
+
+        scroller = new Scroller(getContext());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.DONUT) {
+            ViewConfiguration conf = ViewConfiguration.get(getContext());
+            minimumVelocity = conf.getScaledMinimumFlingVelocity();
+            maximumVelocity = conf.getScaledMaximumFlingVelocity();
+            touchSlop = conf.getScaledTouchSlop();
+        }
+
+        init();
+        defaultValue = initDefault();
+        adapter.setData(generateAdapterValues());
+        currentItemPosition = adapter.getItemPosition(defaultValue);
+        selectedItemPosition = currentItemPosition;
+    }
+
     protected abstract void init();
 
     protected abstract V initDefault();
